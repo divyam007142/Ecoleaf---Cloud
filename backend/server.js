@@ -27,10 +27,6 @@ mongoose.connect(MONGODB_URI, {
 })
 .then(async () => {
   console.log('MongoDB connected successfully');
-  const User = require('./models/User');
-  await User.collection.dropIndexes().catch(() => {});
-  await User.init();
-  console.log('User indexes initialized');
 })
 .catch((err) => {
   console.error('MongoDB connection error:', err);
