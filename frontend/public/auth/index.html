@@ -3,31 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Form | Dan Aleko</title>
+  <title>Secure Auth - Login & Register</title>
   <link rel="stylesheet" href="style.css">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
-  <div class="wrapper">
-    <form action="">
+  <div class="wrapper" id="loginForm">
+    <form id="loginFormElement">
       <h1>Login</h1>
+      <div class="error-message" id="loginError" style="display: none;"></div>
       <div class="input-box">
-        <input type="text" placeholder="Username" required>
+        <input type="email" id="loginEmail" placeholder="Email" required>
         <i class='bx bxs-user'></i>
       </div>
       <div class="input-box">
-        <input type="password" placeholder="Password" required>
-        <i class='bx bxs-lock-alt' ></i>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <i class='bx bxs-lock-alt'></i>
       </div>
       <div class="remember-forgot">
-        <label><input type="checkbox">Remember Me</label>
-        <a href="#">Forgot Password</a>
+        <label><input type="checkbox" id="rememberMe">Remember Me</label>
+        <a href="#" id="phoneAuthLink">Login with Phone</a>
       </div>
       <button type="submit" class="btn">Login</button>
       <div class="register-link">
-        <p>Dont have an account? <a href="#">Register</a></p>
+        <p>Don't have an account? <a href="#" id="showRegister">Register</a></p>
       </div>
     </form>
   </div>
+
+  <div class="wrapper" id="registerForm" style="display: none;">
+    <form id="registerFormElement">
+      <h1>Register</h1>
+      <div class="error-message" id="registerError" style="display: none;"></div>
+      <div class="success-message" id="registerSuccess" style="display: none;"></div>
+      <div class="input-box">
+        <input type="email" id="registerEmail" placeholder="Email" required>
+        <i class='bx bxs-user'></i>
+      </div>
+      <div class="input-box">
+        <input type="password" id="registerPassword" placeholder="Password (min 6 chars)" required minlength="6">
+        <i class='bx bxs-lock-alt'></i>
+      </div>
+      <button type="submit" class="btn">Register</button>
+      <div class="register-link">
+        <p>Already have an account? <a href="#" id="showLogin">Login</a></p>
+      </div>
+    </form>
+  </div>
+
+  <div class="wrapper" id="phoneAuthForm" style="display: none;">
+    <form id="phoneAuthFormElement">
+      <h1>Phone Login</h1>
+      <div class="error-message" id="phoneError" style="display: none;"></div>
+      <div class="input-box">
+        <input type="tel" id="phoneNumber" placeholder="+1234567890" required>
+        <i class='bx bxs-phone'></i>
+      </div>
+      <div id="recaptcha-container"></div>
+      <button type="submit" class="btn" id="sendOtpBtn">Send OTP</button>
+      <div class="input-box" id="otpInputBox" style="display: none;">
+        <input type="text" id="otpCode" placeholder="Enter OTP" required>
+        <i class='bx bxs-lock'></i>
+      </div>
+      <button type="button" class="btn" id="verifyOtpBtn" style="display: none;">Verify OTP</button>
+      <div class="register-link">
+        <p><a href="#" id="backToLogin">Back to Email Login</a></p>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="auth.js"></script>
 </body>
 </html>
