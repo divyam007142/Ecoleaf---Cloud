@@ -186,6 +186,42 @@ backend:
         agent: "main"
         comment: "Backend is pre-existing and working. DELETE /api/files/:id deletes user's file with JWT authentication."
 
+  - task: "User Profile API"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added GET /api/user/profile and PUT /api/user/profile endpoints for fetching and updating user display name."
+
+  - task: "Notes CRUD API"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added full CRUD endpoints for notes: POST /api/notes, GET /api/notes, GET /api/notes/:id, PUT /api/notes/:id, DELETE /api/notes/:id. Stores in MongoDB notes collection."
+
+  - task: "Text Storage CRUD API"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added CRUD endpoints for text storage: POST /api/texts, GET /api/texts, DELETE /api/texts/:id. Stores in MongoDB texts collection."
+
 frontend:
   - task: "Firebase Configuration"
     implemented: true
