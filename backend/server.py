@@ -78,6 +78,21 @@ class FileResponse(BaseModel):
     class Config:
         populate_by_name = True
 
+class UserUpdate(BaseModel):
+    displayName: Optional[str] = None
+
+class NoteCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+    content: str = Field(min_length=1)
+
+class NoteUpdate(BaseModel):
+    title: Optional[str] = Field(None, min_length=1, max_length=200)
+    content: Optional[str] = Field(None, min_length=1)
+
+class TextCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+    content: str = Field(min_length=1)
+
 # Authentication helper
 async def verify_token(authorization: str = Header(None)):
     if not authorization or not authorization.startswith('Bearer '):
