@@ -435,17 +435,18 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Login UI"
-    - "Register UI"
-    - "Phone OTP UI"
-    - "File Upload UI"
-    - "File List UI"
-    - "File Delete UI"
-    - "Protected Routes"
-    - "Environment Variable Usage"
+    - "Custom Glassmorphic Login Page"
+    - "Phone Registration Option"
+    - "User Profile API"
+    - "Notes CRUD API"
+    - "Text Storage CRUD API"
+    - "Dashboard Redesign"
+    - "Settings Page"
+    - "Notes Feature"
+    - "Text Storage Feature"
   stuck_tasks: []
   test_all: true
-  test_priority: "sequential"
+  test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
