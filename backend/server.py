@@ -352,6 +352,239 @@ async def delete_file(file_id: str, user: dict = Depends(verify_token)):
         logging.error(f"Delete file error: {e}")
         raise HTTPException(status_code=500, detail="Failed to delete file")
 
+# User Profile Routes
+@api_router.get("/user/profile")
+async def get_profile(user: dict = Depends(verify_token)):
+    try:
+        user_doc = await db.users.find_one({"_id": user['userId']})
+        if not user_doc:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        return {
+            "user": {
+                "id": user_doc['_id'],
+                "email": user_doc.get('email'),
+                "phoneNumber": user_doc.get('phoneNumber'),
+                "displayName": user_doc.get('displayName'),
+                "authProvider": user_doc.get('authProvider', 'email')
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Get profile error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch profile")
+
+@api_router.put("/user/profile")
+async def update_profile(user_update: UserUpdate, user: dict = Depends(verify_token)):
+    try:
+        update_data = {}
+        if user_update.displayName is not None:
+            update_data['displayName'] = user_update.displayName
+        
+        if not update_data:
+            raise HTTPException(status_code=400, detail="No update data provided")
+        
+        await db.users.update_one(
+            {"_id": user['userId']},
+            {"$set": update_data}
+        )
+        
+        return {"message": "Profile updated successfully", "success": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Update profile error: {e}")
+        raise HTTPException(status_code=500, detail="Profile update failed")
+
+# Notes Routes
+@api_router.post("/notes")
+async def create_note(note_data: NoteCreate, user: dict = Depends(verify_token)):
+    try:
+        note_id = str(uuid.uuid4())
+        note_doc = {
+            "_id": note_id,
+            "userId": user['userId'],
+            "title": note_data.title,
+            "content": note_data.content,
+            "createdAt": datetime.now(timezone.utc).isoformat(),
+            "updatedAt": datetime.now(timezone.utc).isoformat()
+        }
+        
+        await db.notes.insert_one(note_doc)
+        
+        return {
+            "message": "Note created successfully",
+            "note": {
+                "id": note_id,
+                "title": note_data.title,
+                "content": note_data.content,
+                "createdAt": note_doc['createdAt'],
+                "updatedAt": note_doc['updatedAt']
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Create note error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create note")
+
+@api_router.get("/notes")
+async def get_notes(user: dict = Depends(verify_token)):
+    try:
+        notes_cursor = db.notes.find({"userId": user['userId']}).sort("updatedAt", -1)
+        notes = await notes_cursor.to_list(1000)
+        
+        formatted_notes = []
+        for n in notes:
+            formatted_notes.append({
+                "_id": n['_id'],
+                "userId": n['userId'],
+                "title": n['title'],
+                "content": n['content'],
+                "createdAt": n['createdAt'],
+                "updatedAt": n['updatedAt']
+            })
+        
+        return {"notes": formatted_notes}
+    except Exception as e:
+        logging.error(f"Fetch notes error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch notes")
+
+@api_router.get("/notes/{note_id}")
+async def get_note(note_id: str, user: dict = Depends(verify_token)):
+    try:
+        note = await db.notes.find_one({"_id": note_id, "userId": user['userId']})
+        if not note:
+            raise HTTPException(status_code=404, detail="Note not found")
+        
+        return {
+            "note": {
+                "_id": note['_id'],
+                "userId": note['userId'],
+                "title": note['title'],
+                "content": note['content'],
+                "createdAt": note['createdAt'],
+                "updatedAt": note['updatedAt']
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Fetch note error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch note")
+
+@api_router.put("/notes/{note_id}")
+async def update_note(note_id: str, note_data: NoteUpdate, user: dict = Depends(verify_token)):
+    try:
+        note = await db.notes.find_one({"_id": note_id, "userId": user['userId']})
+        if not note:
+            raise HTTPException(status_code=404, detail="Note not found")
+        
+        update_data = {"updatedAt": datetime.now(timezone.utc).isoformat()}
+        if note_data.title is not None:
+            update_data['title'] = note_data.title
+        if note_data.content is not None:
+            update_data['content'] = note_data.content
+        
+        await db.notes.update_one(
+            {"_id": note_id},
+            {"$set": update_data}
+        )
+        
+        return {"message": "Note updated successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Update note error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update note")
+
+@api_router.delete("/notes/{note_id}")
+async def delete_note(note_id: str, user: dict = Depends(verify_token)):
+    try:
+        note = await db.notes.find_one({"_id": note_id, "userId": user['userId']})
+        if not note:
+            raise HTTPException(status_code=404, detail="Note not found")
+        
+        await db.notes.delete_one({"_id": note_id})
+        
+        return {"message": "Note deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Delete note error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete note")
+
+# Text Storage Routes
+@api_router.post("/texts")
+async def create_text(text_data: TextCreate, user: dict = Depends(verify_token)):
+    try:
+        text_id = str(uuid.uuid4())
+        text_doc = {
+            "_id": text_id,
+            "userId": user['userId'],
+            "title": text_data.title,
+            "content": text_data.content,
+            "createdAt": datetime.now(timezone.utc).isoformat(),
+            "updatedAt": datetime.now(timezone.utc).isoformat()
+        }
+        
+        await db.texts.insert_one(text_doc)
+        
+        return {
+            "message": "Text saved successfully",
+            "text": {
+                "id": text_id,
+                "title": text_data.title,
+                "content": text_data.content,
+                "createdAt": text_doc['createdAt'],
+                "updatedAt": text_doc['updatedAt']
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Create text error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to save text")
+
+@api_router.get("/texts")
+async def get_texts(user: dict = Depends(verify_token)):
+    try:
+        texts_cursor = db.texts.find({"userId": user['userId']}).sort("updatedAt", -1)
+        texts = await texts_cursor.to_list(1000)
+        
+        formatted_texts = []
+        for t in texts:
+            formatted_texts.append({
+                "_id": t['_id'],
+                "userId": t['userId'],
+                "title": t['title'],
+                "content": t['content'],
+                "createdAt": t['createdAt'],
+                "updatedAt": t['updatedAt']
+            })
+        
+        return {"texts": formatted_texts}
+    except Exception as e:
+        logging.error(f"Fetch texts error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch texts")
+
+@api_router.delete("/texts/{text_id}")
+async def delete_text(text_id: str, user: dict = Depends(verify_token)):
+    try:
+        text = await db.texts.find_one({"_id": text_id, "userId": user['userId']})
+        if not text:
+            raise HTTPException(status_code=404, detail="Text not found")
+        
+        await db.texts.delete_one({"_id": text_id})
+        
+        return {"message": "Text deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Delete text error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete text")
+
 # Include the router in the main app
 app.include_router(api_router)
 
