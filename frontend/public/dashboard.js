@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8001/api';
+const API_URL = 'http://localhost:8002/api';
 
 const token = localStorage.getItem('authToken');
 const user = JSON.parse(localStorage.getItem('user') || '{}');

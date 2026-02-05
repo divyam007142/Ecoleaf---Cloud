@@ -8,7 +8,7 @@ const authRoutes = require('./routes/auth');
 const fileRoutes = require('./routes/files');
 
 const app = express();
-const PORT = process.env.PORT || 8001;
+const PORT = process.env.PORT || 8002; // CHANGED: avoid port 8001 conflict
 
 app.use(cors());
 app.use(express.json());
@@ -25,8 +25,13 @@ if (!MONGODB_URI) {
 mongoose.connect(MONGODB_URI, {
   dbName: 'secureAuthDB'
 })
-.then(async () => {
+.then(() => {
   console.log('MongoDB connected successfully');
+
+  // CHANGED: start server ONLY after DB connects
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 })
 .catch((err) => {
   console.error('MongoDB connection error:', err);
@@ -43,8 +48,4 @@ app.get('/api', (req, res) => {
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
-});
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
 });
